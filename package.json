@@ -1,0 +1,25 @@
+{
+  "name": "md2html",
+  "version": "1.0.0",
+  "description": "Convert Markdown files to usable HTML code.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node src/test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sedwinj/Md2HTML.git"
+  },
+  "keywords": [
+    "Markdown",
+    "HTML",
+    "conversion",
+    "convert"
+  ],
+  "author": "sedwinj",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sedwinj/Md2HTML/issues"
+  },
+  "homepage": "https://github.com/sedwinj/Md2HTML#readme"
+}
