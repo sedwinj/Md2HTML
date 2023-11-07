@@ -1,16 +1,20 @@
-import { render } from '@testing-library/react'
+import { md2html } from "../src"
 
-function header() {
-    return <h1>Header</h1>
-}
+describe('MdToHtml', () => {
 
-describe('demo', () => {
-    it('can test equivalence between two HTML objects', () => {
-        expect(<h1>Header</h1>).toEqual(<h1>Header</h1>)
-        expect(<h1>Header</h1>).not.toEqual(<h2>Header</h2>)
+    it('can convert Markdown headings to HTML headings', () => {
+        expect(md2html('# Header').innerHTML).toEqual('<h1>Header</h1>')
+        expect(md2html('## Header').innerHTML).toEqual('<h2>Header</h2>')
+        expect(md2html('### Header').innerHTML).toEqual('<h3>Header</h3>')
+        expect(md2html('#### Header').innerHTML).toEqual('<h4>Header</h4>')
+        expect(md2html('##### Header').innerHTML).toEqual('<h5>Header</h5>')
+        expect(md2html('###### Header').innerHTML).toEqual('<h6>Header</h6>')
+
+        // No headers beyond level 6
+        expect(['<h6>Header</h6>', '<h7>Header</h7>']).not.toContain(md2html('####### Header').innerHTML)
+
+        // // Alternate headings
+        expect(md2html('Header\n======').innerHTML).toEqual('<h1>Header</h1>')
+        expect(md2html('Header\n------').innerHTML).toEqual('<h2>Header</h2>')
     })
-})
-
-describe('md2html', () => {
-    it.todo('can convert Markdown headings to HTML headings')
 })
