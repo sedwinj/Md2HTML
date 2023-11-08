@@ -1,14 +1,63 @@
 let parser = new DOMParser()
 
-export function md2html(text) {
-    const input = text.split('\n')
+const TABSIZE = 4
+
+export const md2html = {
+    parse: parse
+}
+
+class Line {
+    static #constructionAllowed = false
+
+    #indentLevel = 0
+    get IndentLevel() { return this.#indentLevel }
+
+    #content = ''
+    get Content() { return this.#content }
+
+    constructor(string) {
+        if (!Line.#constructionAllowed) {
+            throw new TypeError('Line is not constructable.')
+        }
+        this.#indentLevel = Line.#calcIndentLevel(string)
+        this.#content = string.substring(this.#indentLevel * TABSIZE)
+    }
+
+    static createLines(string) {
+        string = string.split('\n')
+        let lines = []
+        Line.#constructionAllowed = true
+        for (let line of string) {
+            lines.push(new Line(line))
+        }
+        Line.#constructionAllowed = false
+        return lines
+    }
+
+    static #calcIndentLevel(string) {
+        let leadingSpaces = 0
+        for (let idx = 0; idx < string.length; idx++) {
+            if (string[idx] === ' ') {
+                leadingSpaces++
+            }
+            else if (string[idx] === '\t') {
+                leadingSpaces = (leadingSpaces / TABSIZE + 1) * TABSIZE
+            }
+        }
+        return Math.floor(leadingSpaces / TABSIZE)
+    }
+}
+
+function parse(text) {
+    const LINES = Line.createLines(text)
     let output = []
 
-    for (let lineNo = 0; lineNo < input.length; lineNo++) {
-        let line = input[lineNo]
+    for (let lineNo = 0; lineNo < LINES.length; lineNo++) {
+        let line = LINES[lineNo]
+        let nextLine = lineNo + 1 < LINES.length ? LINES[lineNo + 1] : null
 
         // Heading
-        if (line[0] === '#') {
+        if (line.IndentLevel === 0 && line.Content.length > 0 && line.Content[0] === '#') {
             let val = parseHeading(line)
             if (val) {
                 output.push(val)
@@ -17,12 +66,10 @@ export function md2html(text) {
         }
 
         // Alt Heading
-        let nextLine = lineNo + 1 < input.length ? input[lineNo + 1] : null
-        let nextLineTrim = nextLine ? nextLine.trim() : null
-        let char = nextLineTrim[0]
-        if (nextLine && indentLevel(nextLine) === indentLevel(line) && ['=', '-'].includes(char)) {
-            if (findFirstNotOf(nextLineTrim, char) === -1) {
-                let val = makeHeader(line, char === '=' ? 1 : 2)
+        let char = nextLine && nextLine.Content.length > 0 ? nextLine.Content[0] : null
+        if (char && nextLine.IndentLevel === 0 && ['=', '-'].includes(char)) {
+            if (findFirstNotOf(nextLine.Content.trim(), char) === -1) {
+                let val = makeHeader(line.Content, char === '=' ? 1 : 2)
                 output.push(val)
                 lineNo++
                 continue
@@ -33,18 +80,18 @@ export function md2html(text) {
     return parser.parseFromString(output.join('\n'), 'text/html').body
 }
 
-function parseHeading(string) {
+function parseHeading(line) {
     const MAX_HEADING_LEVEL = 6
     let idx = 1
     for (; idx < MAX_HEADING_LEVEL; idx++) {
-        if (string[idx] !== '#') {
+        if (line.Content[idx] !== '#') {
             break
         }
     }
 
-    if (string) {
+    if (line.Content) {
         let headerLevel = idx - 1
-        return makeHeader(string.substring(idx + 1), headerLevel + 1)
+        return makeHeader(line.Content.substring(idx + 1), headerLevel + 1)
     }
 }
 
@@ -61,18 +108,4 @@ function findFirstNotOf(string, charset) {
         }
     }
     return -1
-}
-
-function indentLevel(string) {
-    const TABSIZE = 4
-    let leadingSpaces = 0
-    for (let idx = 0; idx < string.length; idx++) {
-        if (string[idx] === ' ') {
-            leadingSpaces++
-        }
-        else if (string[idx] === '\t') {
-            leadingSpaces = (leadingSpaces / TABSIZE + 1) * TABSIZE
-        }
-    }
-    return Math.floor(leadingSpaces / TABSIZE)
 }
