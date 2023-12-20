@@ -40,5 +40,26 @@ describe('MdToHtml', () => {
         }
     })
 
-    it.todo('can convert Markdown paragraphs into HTML paragraphs')
+    it.todo('can convert Markdown paragraphs into HTML paragraphs', () => {
+        let eq = [
+            // Basic paragraph
+            pair('basic paragraph', '<p>basic paragraph</p>'),
+
+            // Trim whitespace
+            pair(' whitespace trimmed ', '<p>whitespace trimmed</p>'),
+            pair('\twhitespace trimmed\t', '<p>whitespace trimmed</p>'),
+
+            // Line break behavior
+            pair('single\nbreak', '<p>singlebreak</p>'),
+            pair('double\n\nbreaks', '<p>double</p><p>breaks</p>'),
+            pair('extra\n\n\nbreaks', '<p>extra</p><p>breaks</p>'),
+            pair('extra\n\n\n\nbreaks', '<p>extra</p><p>breaks</p>'),
+            pair('\n\nignore leading breaks', '<p>ignore leading breaks</p'),
+            pair('ignore trailing breaks\n\n', '<p>ignore trailing breaks</p>')
+        ]
+
+        for (let pair of eq) {
+            expect(pair.input).toEqual(pair.expected)
+        }
+    })
 })
