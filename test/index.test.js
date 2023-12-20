@@ -8,30 +8,34 @@ function pair(input, expected) {
 
 describe('MdToHtml', () => {
     it('can convert Markdown headings to HTML headings', () => {
-        let equal = [
-            // Headers 1 through 6
-            pair('# Header', '<h1>Header</h1>'),
-            pair('## Header', '<h2>Header</h2>'),
-            pair('### Header', '<h3>Header</h3>'),
-            pair('#### Header', '<h4>Header</h4>'),
-            pair('##### Header', '<h5>Header</h5>'),
-            pair('###### Header', '<h6>Header</h6>'),
+        let eq = [
+            // Headings 1-6
+            pair('# Heading 1', '<h1>Heading 1</h1>'),
+            pair('## Heading 2', '<h2>Heading 2</h2>'),
+            pair('### Heading 3', '<h3>Heading 3</h3>'),
+            pair('#### Heading 4', '<h4>Heading 4</h4>'),
+            pair('##### Heading 5', '<h5>Heading 5</h5>'),
+            pair('###### Heading 6', '<h6>Heading 6</h6>'),
+
             // Alternate headings
-            pair('Header\n======', '<h1>Header</h1>'),
-            pair('Header\n------', '<h2>Header</h2>')
+            pair('Alt Heading 1\n======', '<h1>Alt Heading 1</h1>'),
+            pair('Alt Heading 2\n------', '<h2>Alt Heading 2</h2>'),
         ]
 
-        for (let pair of equal) {
+        let neq = [
+            // No headings beyond level 6
+            pair('####### Heading 7', '<h7>Heading 7</h7>'),
+            pair('######## Heading 8', '<h8>Heading 8</h8>'),
+
+            // No space no heading
+            pair('#nospacenoheading', '<h1>nospacenoheading</h1>'),
+        ]
+
+        for (let pair of eq) {
             expect(pair.input).toEqual(pair.expected)
         }
 
-        let notEqual = [
-            // No headers beyond level 6
-            pair('####### Header', '<h6>Header</h6>'),
-            pair('####### Header', '<h7>Header</h7>')
-        ]
-
-        for (let pair of notEqual) {
+        for (let pair of neq) {
             expect(pair.input).not.toEqual(pair.expected)
         }
     })
